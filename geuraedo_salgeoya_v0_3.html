@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>물건 가격 노동시간 계산기 - 이거 사려면 몇 시간 일해야 할까? | 그래도 살 거야?</title>
+  <meta name="description" content="사고 싶은 물건의 가격을 내 시급·월급과 노동시간으로 바꿔보는 소비 계산기. 같은 돈으로 할 수 있는 것들도 함께 비교해보세요.">
+  <meta name="robots" content="index,follow">
+  <style>
+    :root{
+      --bg:#f5f6f8;--card:#fff;--text:#17191c;--muted:#6b7280;--line:#e5e7eb;
+      --dark:#20242a;--soft:#f0f1f3;--warn:#fff8e7;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans KR","Apple SD Gothic Neo",sans-serif}
+    .wrap{width:min(760px,calc(100% - 28px));margin:34px auto 70px}
+    .notice{font-size:13px;line-height:1.6;padding:12px 14px;border:1px solid var(--line);background:#fff;border-radius:12px;margin-bottom:20px}
+    header{text-align:center;padding:18px 8px 28px}
+    h1{font-size:38px;margin:0 0 8px;letter-spacing:-1.5px}
+    header p{margin:0;color:var(--muted);font-size:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;margin-bottom:16px}
+    .card h2{margin:0 0 18px;font-size:20px}
+    label{display:block;font-weight:700;font-size:14px;margin:15px 0 7px}
+    input,select{width:100%;border:1px solid #d5d8dd;border-radius:12px;padding:13px 14px;font-size:16px;background:#fff;color:var(--text)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    button{width:100%;border:0;border-radius:13px;padding:15px 18px;font-size:17px;font-weight:800;cursor:pointer}
+    .primary{background:var(--dark);color:#fff;margin-top:20px}.affiliate-link{display:block;text-decoration:none;text-align:center;border-radius:13px;padding:15px 18px;font-size:17px;font-weight:800}
+    .secondary{background:var(--soft);color:var(--text)}
+    .hidden{display:none!important}
+    .result{text-align:center}
+    .eyebrow{color:var(--muted);font-weight:700;font-size:14px}
+    .price{font-size:24px;font-weight:800;margin:7px 0 20px}
+    .big{font-size:44px;font-weight:900;letter-spacing:-2px;margin:5px 0}
+    .sub{font-size:17px;color:#40444b;line-height:1.65}
+    .compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
+    .tile{background:#f7f7f8;border-radius:15px;padding:16px 12px;text-align:center}
+    .tile span{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+    .tile strong{font-size:21px}
+    .interest{background:var(--warn)}
+    .final{text-align:center;padding:30px 22px}
+    .final .small{color:var(--muted)}
+    .final h2{font-size:32px;margin:8px 0 18px}
+    .affiliate{margin-top:12px;font-size:12px;color:var(--muted);line-height:1.5}
+    .example{margin-top:20px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+    footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.7;padding-top:12px}
+    @media(max-width:520px){
+      .wrap{margin-top:18px}
+      h1{font-size:32px}
+      .row,.compare{grid-template-columns:1fr}
+      .big{font-size:38px}
+    }
+  </style>
+  <!-- 그래도 살 거야? v0.3 -->
+</head>
+<body>
+<main class="wrap">
+  <div class="notice">
+    ※ 이 페이지에는 쿠팡 파트너스 제휴 링크가 포함되어 있으며, 해당 링크를 통해 구매가 이루어질 경우 일정액의 수수료를 제공받을 수 있습니다.
+  </div>
+
+  <header>
+    <h1>그래도 살 거야?</h1>
+    <p>가격표를 잠깐 내려놓고, 내 노동시간으로 다시 보자.</p>
+  </header>
+
+  <section class="card">
+    <h2>뭘 사고 싶은데?</h2>
+
+    <label for="item">제품 이름</label>
+    <input id="item" value="갤럭시탭 S11 울트라" maxlength="50">
+
+    <label for="price">제품 가격 (원)</label>
+    <input id="price" type="number" min="1" step="1000" value="2498960">
+
+    <label for="payType">급여 입력 방식</label>
+    <select id="payType">
+      <option value="hourly">시급으로 입력</option>
+      <option value="monthly">월급으로 입력</option>
+    </select>
+
+    <div id="hourlyBox">
+      <label for="hourly">현재 시급 (원)</label>
+      <input id="hourly" type="number" min="1" step="100" value="12000">
+    </div>
+
+    <div id="monthlyBox" class="hidden">
+      <label for="monthly">월급 (원)</label>
+      <input id="monthly" type="number" min="1" step="10000" value="3000000">
+      <div class="row">
+        <div>
+          <label for="daysMonth">한 달 근무일</label>
+          <input id="daysMonth" type="number" min="1" max="31" step="1" value="22">
+        </div>
+        <div>
+          <label for="hoursDayMonthly">하루 근무시간</label>
+          <input id="hoursDayMonthly" type="number" min="0.5" max="24" step="0.5" value="8">
+        </div>
+      </div>
+    </div>
+
+    <label for="hoursDay">하루 몇 시간 일해?</label>
+    <input id="hoursDay" type="number" min="0.5" max="24" step="0.5" value="8">
+
+    <label for="rate">파킹통장 연이율 (%) <small style="font-weight:400;color:#6b7280">선택</small></label>
+    <input id="rate" type="number" min="0" max="100" step="0.01" value="2.5">
+
+    <button class="primary" id="calc">내 시간으로 바꿔보기</button>
+  </section>
+
+  <section class="card result hidden" id="result">
+    <div class="eyebrow" id="vs">이 물건 VS 나</div>
+    <div class="price" id="showPrice"></div>
+    <div class="small">이걸 사기 위해 필요한 내 노동</div>
+    <div class="big" id="workTime"></div>
+    <div class="sub" id="workDays"></div>
+  </section>
+
+  <section class="card hidden" id="alternatives">
+    <h2>잠깐. 같은 돈이면…</h2>
+    <div class="compare">
+      <div class="tile"><span>🍲 15,000원 순대국밥</span><strong id="sundae"></strong></div>
+      <div class="tile"><span>🍽️ 100,000원 외식</span><strong id="dinner"></strong></div>
+      <div class="tile"><span>👨‍👩‍👦 부모님께 100,000원 용돈</span><strong id="parents"></strong></div>
+      <div class="tile interest"><span>💰 파킹통장 세전 하루 이자</span><strong id="interest"></strong></div>
+    </div>
+  </section>
+
+  <section class="card final hidden" id="final">
+    <div class="small">여기까지 봤는데도…</div>
+    <h2>그래도 살 거야?</h2>
+    <button class="secondary" id="wantIt">응. 그래도 산다 ㅋㅋ</button>
+    <div id="cta" class="hidden">
+      <div class="example">
+        <div style="font-size:22px;font-weight:900;margin-bottom:14px;">당신의 선택을 존중합니다. 😂</div><span>오늘의 예시 상품</span><br><strong id="exampleName">갤럭시탭 S11 울트라 · 2,498,960원</strong><br>
+        실제 제휴 링크를 넣을 때는 이 영역이 어떤 상품으로 연결되는지 명확하게 표시합니다.
+      </div>
+      <a class="primary affiliate-link" id="affiliateLink" href="https://link.coupang.com/a/hrhVfMCipG" target="_blank" rel="nofollow sponsored noopener">🛒 좋다. 쿠팡으로 가자 →</a>
+      <div class="affiliate">
+        위 버튼은 갤럭시탭 S11 울트라 쿠팡 상품 페이지로 이동합니다. 실제 판매가는 옵션·할인·시점에 따라 달라질 수 있습니다.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    이 계산기는 소비를 권하거나 막기 위한 도구가 아닙니다.<br>
+    가격을 노동시간과 다른 선택지로 바꾸어 보여주는 단순 참고용 계산기입니다.
+  </footer>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const won = (n) => Math.round(n).toLocaleString("ko-KR") + "원";
+
+  $("payType").addEventListener("change", () => {
+    const monthly = $("payType").value === "monthly";
+    $("hourlyBox").classList.toggle("hidden", monthly);
+    $("monthlyBox").classList.toggle("hidden", !monthly);
+  });
+
+  $("calc").addEventListener("click", () => {
+    const item = $("item").value.trim() || "이 물건";
+    const price = Number($("price").value);
+    const dayHours = Number($("hoursDay").value);
+    const rate = Number($("rate").value || 0);
+
+    let wage;
+    if ($("payType").value === "hourly") {
+      wage = Number($("hourly").value);
+    } else {
+      const monthly = Number($("monthly").value);
+      const days = Number($("daysMonth").value);
+      const hours = Number($("hoursDayMonthly").value);
+      wage = monthly / (days * hours);
+    }
+
+    if (![price, dayHours, wage].every(Number.isFinite) || price <= 0 || dayHours <= 0 || wage <= 0) {
+      alert("가격과 급여, 근무시간을 올바르게 입력해줘.");
+      return;
+    }
+
+    const totalHours = price / wage;
+    let h = Math.floor(totalHours);
+    let m = Math.round((totalHours - h) * 60);
+    if (m === 60) { h += 1; m = 0; }
+    const days = totalHours / dayHours;
+    const dailyInterest = price * (Math.max(0, rate) / 100) / 365;
+
+    $("vs").textContent = item + " VS 나";
+    $("showPrice").textContent = won(price);
+    $("workTime").textContent = h.toLocaleString("ko-KR") + "시간 " + m + "분";
+    $("workDays").innerHTML = "하루 " + dayHours.toLocaleString("ko-KR") + "시간 기준으로 약 <strong>" + days.toFixed(1) + "일</strong>의 노동";
+    $("sundae").textContent = Math.floor(price / 15000).toLocaleString("ko-KR") + "그릇";
+    $("dinner").textContent = Math.floor(price / 100000).toLocaleString("ko-KR") + "번";
+    $("parents").textContent = Math.floor(price / 100000).toLocaleString("ko-KR") + "번";
+    $("interest").textContent = won(dailyInterest);
+    $("exampleName").textContent = "갤럭시탭 S11 울트라 · 2,498,960원";
+
+    ["result","alternatives","final"].forEach(id => $(id).classList.remove("hidden"));
+    $("cta").classList.add("hidden");
+    $("result").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+
+  $("wantIt").addEventListener("click", () => {
+    $("cta").classList.remove("hidden");
+    $("cta").scrollIntoView({behavior:"smooth", block:"nearest"});
+  });
+
+})();
+</script>
+</body>
+</html>
